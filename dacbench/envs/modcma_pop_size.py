@@ -1,9 +1,3 @@
-"""
-CMA-ES environment adapted from CMAWorld in
-"Learning Step-size Adaptation in CMA-ES"
-by G.Shala and A. Biedenkapp and N.Awad and S. Adriaensen and M.Lindauer and F. Hutter.
-Original author: Gresa Shala
-"""
 
 import resource
 import sys
@@ -21,13 +15,6 @@ resource.setrlimit(resource.RLIMIT_STACK, (2**35, -1))
 sys.setrecursionlimit(10**9)
 
 warnings.filterwarnings("ignore")
-
-
-def _norm(x):
-    return np.sqrt(np.sum(np.square(x)))
-
-
-# IDEA: if we ask cma instead of ask_eval, we could make this parallel
 
 
 class CMAESPopSizeEnv(AbstractEnv):

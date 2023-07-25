@@ -129,6 +129,8 @@ class CMAESPopSizeBenchmark(AbstractBenchmark):
                 ]
                 self.config[keyword][int(row["ID"])] = instance
 
+
+    # not using this
     def get_benchmark(self, seed=0):
         """
         Get benchmark from the LTO paper
