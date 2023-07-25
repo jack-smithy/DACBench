@@ -126,6 +126,9 @@ class CMAESEnv(AbstractEnv):
             Environment state
         """
         super(CMAESEnv, self).reset_(seed)
+        
+        print(self.instance)
+        
         self.history.clear()
         self.past_obj_vals.clear()
         self.past_sigma.clear()

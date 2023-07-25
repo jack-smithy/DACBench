@@ -7,6 +7,7 @@ from dacbench.benchmarks.geometric_benchmark import GeometricBenchmark
 from dacbench.benchmarks.luby_benchmark import LubyBenchmark
 from dacbench.benchmarks.sigmoid_benchmark import SigmoidBenchmark
 from dacbench.benchmarks.toysgd_benchmark import ToySGDBenchmark
+from dacbench.benchmarks.modcma_popsize_benchmark import CMAESPopSizeBenchmark
 
 __all__ = [
     "LubyBenchmark",
@@ -14,6 +15,7 @@ __all__ = [
     "ToySGDBenchmark",
     "GeometricBenchmark",
     "FastDownwardBenchmark",
+    "CMAESPopSizeBenchmark",
 ]
 
 

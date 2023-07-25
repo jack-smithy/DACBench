@@ -7,6 +7,8 @@ from gymnasium import spaces
 
 from dacbench import wrappers
 
+import ConfigSpace
+
 
 class AbstractBenchmark:
     """Abstract template for benchmark classes."""

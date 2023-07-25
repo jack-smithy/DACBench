@@ -12,6 +12,7 @@ from dacbench.envs.sigmoid import (
 )
 from dacbench.envs.theory import TheoryEnv
 from dacbench.envs.toysgd import ToySGDEnv
+from dacbench.envs.modcma_pop_size import CMAESPopSizeEnv
 
 __all__ = [
     "LubyEnv",
@@ -23,6 +24,7 @@ __all__ = [
     "ToySGDEnv",
     "GeometricEnv",
     "TheoryEnv",
+    "CMAESPopSizeEnv"
 ]
 
 cma_spec = importlib.util.find_spec("cma")

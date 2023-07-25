@@ -7,10 +7,7 @@ import numpy as np
 from gymnasium import spaces
 
 from dacbench.abstract_benchmark import AbstractBenchmark, objdict
-from dacbench.envs import CMAESEnv
-
-HISTORY_LENGTH = 40
-INPUT_DIM = 10
+from dacbench.envs import CMAESPopSizeEnv
 
 DEFAULT_CFG_SPACE = CS.ConfigurationSpace()
 STEP_SIZE = CSH.UniformFloatHyperparameter(name="Step_size", lower=0, upper=10)
@@ -18,56 +15,40 @@ DEFAULT_CFG_SPACE.add_hyperparameter(STEP_SIZE)
 
 INFO = {
     "identifier": "CMA-ES",
-    "name": "Step-size adaption in CMA-ES",
+    "name": "pop-size adaption in CMA-ES",
     "reward": "Negative best function value",
     "state_description": [
-        "Loc",
-        "Past Deltas",
-        "Population Size",
-        "Sigma",
-        "History Deltas",
-        "Past Sigma Deltas",
+        "lambda_",
+        "ptnorm",
+        "normalisation_factor",
     ],
 }
 
 CMAES_DEFAULTS = objdict(
     {
         "action_space_class": "Box",
-        "action_space_args": [np.array([0]), np.array([10])],
+        "action_space_args": [np.array([0]), np.array([5120])],
         "config_space": DEFAULT_CFG_SPACE,
         "observation_space_class": "Dict",
         "observation_space_type": None,
         "observation_space_args": [
             {
-                "current_loc": spaces.Box(
-                    low=-np.inf, high=np.inf, shape=np.arange(INPUT_DIM).shape
-                ),
-                "past_deltas": spaces.Box(
-                    low=-np.inf, high=np.inf, shape=np.arange(HISTORY_LENGTH).shape
-                ),
-                "current_ps": spaces.Box(low=-np.inf, high=np.inf, shape=(1,)),
-                "current_sigma": spaces.Box(low=-np.inf, high=np.inf, shape=(1,)),
-                "history_deltas": spaces.Box(
-                    low=-np.inf, high=np.inf, shape=np.arange(HISTORY_LENGTH * 2).shape
-                ),
-                "past_sigma_deltas": spaces.Box(
-                    low=-np.inf, high=np.inf, shape=np.arange(HISTORY_LENGTH).shape
-                ),
-            }
-        ],
+                "lambda_": spaces.Box(low=0, high=np.inf, shape=(1,)),
+                "ptnorm": spaces.Box(low=-np.inf, high=np.inf, shape=(1,)),
+                "normalisation_factor": spaces.Box(low=-np.inf, high=np.inf, shape=(1,)),
+            }],
         "reward_range": (-(10**9), 0),
         "cutoff": 1e6,
-        "hist_length": HISTORY_LENGTH,
-        "popsize": 10,
         "seed": 0,
         "instance_set_path": "../instance_sets/cma/cma_train.csv",
         "test_set_path": "../instance_sets/cma/cma_test.csv",
         "benchmark_info": INFO,
+        "budget": int(1e5)
     }
 )
 
 
-class CMAESBenchmark(AbstractBenchmark):
+class CMAESPopSizeBenchmark(AbstractBenchmark):
     """
     Benchmark with default configuration & relevant functions for CMA-ES
     """
@@ -81,7 +62,7 @@ class CMAESBenchmark(AbstractBenchmark):
         config_path : str
             Path to config file (optional)
         """
-        super(CMAESBenchmark, self).__init__(config_path, config)
+        super(CMAESPopSizeBenchmark, self).__init__(config_path, config)
         if not self.config:
             self.config = objdict(CMAES_DEFAULTS.copy())
 
@@ -109,7 +90,8 @@ class CMAESBenchmark(AbstractBenchmark):
         ):
             self.read_instance_set(test=True)
 
-        env = CMAESEnv(self.config)
+        env = CMAESPopSizeEnv(self.config)
+        
         for func in self.wrap_funcs:
             env = func(env)
 
@@ -165,4 +147,4 @@ class CMAESBenchmark(AbstractBenchmark):
         self.config.seed = seed
         self.read_instance_set()
         self.read_instance_set(test=True)
-        return CMAESEnv(self.config)
+        return CMAESPopSizeEnv(self.config)

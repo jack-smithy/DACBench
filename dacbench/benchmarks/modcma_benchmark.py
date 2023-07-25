@@ -67,23 +67,15 @@ INFO = {
 MODCMA_DEFAULTS = objdict(
     {
         "config_space": DEFAULT_CFG_SPACE,
-        "action_space_class": "MultiDiscrete",
-        "action_space_args": [
-            list(
-                map(
-                    lambda m: len(
-                        getattr(getattr(Parameters, m), "options", [False, True])
-                    ),
-                    Parameters.__modules__,
-                )
-            )
-        ],
+        "action_space_class": "Box",
+        "action_space_args": [np.array([0]), np.array([10])],
+        "action_space_type": np.float32,
         "observation_space_class": "Box",
         "observation_space_args": [-np.inf * np.ones(5), np.inf * np.ones(5)],
         "observation_space_type": np.float32,
         "reward_range": (-(10**12), 0),
         "budget": 100,
-        "cutoff": 1e6,
+        "cutoff": 1e2,
         "seed": 0,
         "multi_agent": False,
         "instance_set_path": os.path.join(
@@ -104,6 +96,7 @@ class ModCMABenchmark(AbstractBenchmark):
         super().__init__(config_path, config)
         self.config = objdict(MODCMA_DEFAULTS.copy(), **(self.config or dict()))
         self.step_size = step_size
+    
 
     def get_environment(self):
         if "instance_set" not in self.config:
@@ -116,12 +109,8 @@ class ModCMABenchmark(AbstractBenchmark):
         ):
             self.read_instance_set(test=True)
 
-        if self.step_size:
-            self.config.action_space_class = "Box"
-            self.config.action_space_args = [np.array([0]), np.array([10])]
-            env = CMAStepSizeEnv(self.config)
-        else:
-            env = ModCMAEnv(self.config)
+        env = CMAStepSizeEnv(self.config)
+       
         for func in self.wrap_funcs:
             env = func(env)
         return env
@@ -150,4 +139,4 @@ class ModCMABenchmark(AbstractBenchmark):
         self.config.seed = seed
         self.read_instance_set()
         self.read_instance_set(test=True)
-        return ModCMAEnv(self.config)
+        return CMAStepSizeEnv(self.config)
