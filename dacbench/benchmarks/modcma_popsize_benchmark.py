@@ -10,8 +10,8 @@ from dacbench.abstract_benchmark import AbstractBenchmark, objdict
 from dacbench.envs import CMAESPopSizeEnv
 
 DEFAULT_CFG_SPACE = CS.ConfigurationSpace()
-STEP_SIZE = CSH.UniformFloatHyperparameter(name="Step_size", lower=0, upper=10)
-DEFAULT_CFG_SPACE.add_hyperparameter(STEP_SIZE)
+POP_SIZE = CSH.UniformFloatHyperparameter(name="Pop_size", lower=4, upper=5120)
+DEFAULT_CFG_SPACE.add_hyperparameter(POP_SIZE)
 
 INFO = {
     "identifier": "CMA-ES",
@@ -33,7 +33,7 @@ CMAES_DEFAULTS = objdict(
         "observation_space_type": np.float32,
         "observation_space_args": [-1 * np.inf * np.ones(3), np.inf * np.ones(3)],
         "reward_range": (-(10**9), (10**9)),
-        "cutoff": 1e4,
+        "cutoff": 1e6,
         "seed": 0,
         "instance_set_path": "../instance_sets/cma/cma_train.csv",
         "test_set_path": "../instance_sets/cma/cma_test.csv",

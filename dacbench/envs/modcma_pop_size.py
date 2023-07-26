@@ -35,11 +35,13 @@ class CMAESPopSizeEnv(AbstractEnv):
         self.es = None
         self.budget = config.budget
 
-        self.get_reward = self.get_default_reward
-        self.get_state = self.get_default_state
-        
         self.previous_obj_best = -1 * np.inf
         self.current_obj_best = -1 * np.inf
+
+        self.get_reward = self.get_default_reward
+        self.get_state = self.get_default_state
+
+        self.steps = 0
 
     def step(self, action):
         """
@@ -63,9 +65,13 @@ class CMAESPopSizeEnv(AbstractEnv):
         
         if not (terminated or truncated):
             """Moves forward in time one step"""
-            self.es.parameters.update_popsize(round(min(max(action[0], 4), 512*10)))
+            if self.steps % 4 == 0:
+                print(action)
+                self.es.parameters.update_popsize(round(min(max(action[0], 4), 512*10)))
 
-        self.current_obj_best = self.objective.state.current_best.y
+        self.current_obj_best = self.es.parameters.fopt
+
+        self.steps += 1
     
         return self.get_state(self), self.get_reward(self), terminated, truncated, {}
 
@@ -82,6 +88,10 @@ class CMAESPopSizeEnv(AbstractEnv):
         
         self.dim = self.instance[1]
         self.fid = self.instance[0]
+        self.sigma0 = self.instance[2]
+        self.x0 = self.instance[3] if len(self.instance[3])==self.dim else None
+        self.lambda0 = np.random.randint(self.dim // 2, self.dim * 2)
+        instance = np.random.randint(0, 20)
         
         print(f'FID{self.fid}, dim={self.dim}')
         
@@ -96,7 +106,8 @@ class CMAESPopSizeEnv(AbstractEnv):
             self.objective,
             self.dim,
             budget = self.budget,
-            pop_size_adaptation=None
+            pop_size_adaptation=None,
+            #lambda_=self.lambda0,
         )
         
         return self.get_state(self), {}
@@ -139,11 +150,19 @@ class CMAESPopSizeEnv(AbstractEnv):
         """
 
         return self.previous_obj_best - self.current_obj_best
+        #return -1 * self.es.parameters.fopt
+
 
     def get_default_state(self, _):
         """
         Gather state description
         """
+
+        lam = self.es.parameters.lambda_
+        pt = self.es.parameters.pnorm
+        scale_factor = self.es.parameters.expected_update_snorm()
+
+
         
         state = [
             self.es.parameters.lambda_,
