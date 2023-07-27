@@ -21,6 +21,7 @@ INFO = {
         "lambda_",
         "ptnorm",
         "normalisation_factor",
+        "remaining_budget"
     ],
 }
 
@@ -31,8 +32,8 @@ CMAES_DEFAULTS = objdict(
         "config_space": DEFAULT_CFG_SPACE,
         "observation_space_class": "Box",
         "observation_space_type": np.float32,
-        "observation_space_args": [-1 * np.inf * np.ones(3), np.inf * np.ones(3)],
-        "reward_range": (-(10**9), (10**9)),
+        "observation_space_args": [-1 * np.inf * np.ones(4), np.inf * np.ones(4)],
+        "reward_range": (0, (10**9)),
         "cutoff": 1e6,
         "seed": 0,
         "instance_set_path": "../instance_sets/cma/cma_train.csv",

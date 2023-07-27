@@ -15,7 +15,7 @@ from dacbench.logger import Logger, load_logs, log2dataframe
 from dacbench.benchmarks import CMAESPopSizeBenchmark
 
 bench = CMAESPopSizeBenchmark()
-env = bench.get_benchmark()
+env = bench.get_environment()
 env = Monitor(env, "./logs/")
 
 n_actions = env.action_space.shape[-1]
@@ -25,8 +25,17 @@ eval_callback = EvalCallback(env, best_model_save_path="./logs/",
                              log_path="./logs/", eval_freq=100,
                              deterministic=True, render=False)
 
-agent = TD3("MlpPolicy", env, learning_rate=1e-4, action_noise=action_noise, verbose=1)
-agent.learn(total_timesteps=1e4, callback=eval_callback, progress_bar=True)
+agent = TD3("MlpPolicy",
+            env, 
+            learning_rate=1e-3,
+            gamma=0.98,
+            buffer_size=200000,
+            gradient_steps=-1,
+            train_freq=(5, "step"),
+            action_noise=action_noise,
+            verbose=1)
+
+agent.learn(total_timesteps=3e5, callback=eval_callback, progress_bar=True)
 agent.save('./logs/test1')
 
 vec_env = agent.get_env()

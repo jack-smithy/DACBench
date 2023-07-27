@@ -35,13 +35,11 @@ class CMAESPopSizeEnv(AbstractEnv):
         self.es = None
         self.budget = config.budget
 
-        self.previous_obj_best = -1 * np.inf
-        self.current_obj_best = -1 * np.inf
-
         self.get_reward = self.get_default_reward
         self.get_state = self.get_default_state
-
-        self.steps = 0
+        
+        self.previous_obj_best = 0
+        self.current_obj_best = 0
 
     def step(self, action):
         """
@@ -58,6 +56,8 @@ class CMAESPopSizeEnv(AbstractEnv):
             state, reward, done, info 
         """
         
+        
+        
         self.previous_obj_best = self.current_obj_best
         
         truncated = super(CMAESPopSizeEnv, self).step_()
@@ -65,13 +65,9 @@ class CMAESPopSizeEnv(AbstractEnv):
         
         if not (terminated or truncated):
             """Moves forward in time one step"""
-            if self.steps % 4 == 0:
-                print(action)
-                self.es.parameters.update_popsize(round(min(max(action[0], 4), 512*10)))
-
+            self.es.parameters.update_popsize(round(min(max(action[0], 4), 512)))
+    
         self.current_obj_best = self.es.parameters.fopt
-
-        self.steps += 1
     
         return self.get_state(self), self.get_reward(self), terminated, truncated, {}
 
@@ -84,10 +80,13 @@ class CMAESPopSizeEnv(AbstractEnv):
         np.array
             Environment state
         """
+        
+        
         super(CMAESPopSizeEnv, self).reset_(seed)
         
         self.dim = self.instance[1]
-        self.fid = self.instance[0]
+        #self.fid = self.instance[0]
+        self.fid = 3
         self.sigma0 = self.instance[2]
         self.x0 = self.instance[3] if len(self.instance[3])==self.dim else None
         self.lambda0 = np.random.randint(self.dim // 2, self.dim * 2)
@@ -96,7 +95,7 @@ class CMAESPopSizeEnv(AbstractEnv):
         print(f'FID{self.fid}, dim={self.dim}')
         
         self.objective = ioh.get_problem(
-            fid = self.fid,
+            fid = 3,
             dimension=self.dim,
             instance=1,
             problem_class=ioh.ProblemClass.BBOB
@@ -107,7 +106,7 @@ class CMAESPopSizeEnv(AbstractEnv):
             self.dim,
             budget = self.budget,
             pop_size_adaptation=None,
-            #lambda_=self.lambda0,
+            lambda_=4
         )
         
         return self.get_state(self), {}
@@ -149,8 +148,11 @@ class CMAESPopSizeEnv(AbstractEnv):
 
         """
 
-        return self.previous_obj_best - self.current_obj_best
-        #return -1 * self.es.parameters.fopt
+        dy = self.previous_obj_best - self.current_obj_best
+        #return min(1e9, max(dy, 0))
+
+        print(self.current_obj_best)
+        return dy
 
 
     def get_default_state(self, _):
@@ -161,12 +163,13 @@ class CMAESPopSizeEnv(AbstractEnv):
         lam = self.es.parameters.lambda_
         pt = self.es.parameters.pnorm
         scale_factor = self.es.parameters.expected_update_snorm()
-
-
+        remaining_budget = self.budget - self.es.parameters.used_budget
         
         state = [
-            self.es.parameters.lambda_,
-            self.es.parameters.pnorm,
-            self.es.parameters.expected_update_snorm(),
+            lam,
+            pt,
+            scale_factor,
+            remaining_budget
         ]
+        
         return state
