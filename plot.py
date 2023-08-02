@@ -40,4 +40,15 @@ def plot_results(log_folder, title="Learning Curve"):
     #plt.show()
     plt.savefig("./plots/learning_curve.pdf", format="pdf")
     
-plot_results(log_dir)
+#plot_results(log_dir)
+
+def read_file(dir):
+    return np.load(f'{dir}/evaluations.npz')
+
+if __name__=="__main__":
+    data = read_file(log_dir)
+    lst = data.files
+    
+    for item in lst:
+        print(item)
+        print(data[item])

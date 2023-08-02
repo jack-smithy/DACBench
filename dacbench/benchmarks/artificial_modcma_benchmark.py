@@ -10,7 +10,7 @@ from dacbench.abstract_benchmark import AbstractBenchmark, objdict
 from dacbench.envs import CMAESPopSizeEnv
 
 DEFAULT_CFG_SPACE = CS.ConfigurationSpace()
-POP_SIZE = CSH.UniformFloatHyperparameter(name="Pop_size", lower=4, upper=512)
+POP_SIZE = CSH.UniformFloatHyperparameter(name="Pop_size", lower=4, upper=5120)
 DEFAULT_CFG_SPACE.add_hyperparameter(POP_SIZE)
 
 INFO = {
@@ -28,23 +28,23 @@ INFO = {
 CMAES_DEFAULTS = objdict(
     {
         "action_space_class": "Box",
-        "action_space_args": [np.array([0]), np.array([512])],
+        "action_space_args": [np.array([0]), np.array([5120])],
         "config_space": DEFAULT_CFG_SPACE,
         "observation_space_class": "Box",
         "observation_space_type": np.float32,
-        "observation_space_args": [-1 * np.inf * np.ones(3), np.inf * np.ones(3)],
+        "observation_space_args": [-1 * np.inf * np.ones(4), np.inf * np.ones(4)],
         "reward_range": (0, (10**9)),
         "cutoff": 1e6,
         "seed": 0,
         "instance_set_path": "../instance_sets/cma/cma_train.csv",
         "test_set_path": "../instance_sets/cma/cma_test.csv",
         "benchmark_info": INFO,
-        "budget": int(5e5)
+        "budget": int(1e5)
     }
 )
 
 
-class CMAESPopSizeBenchmark(AbstractBenchmark):
+class CMAESArtificialPopSizeBenchmark(AbstractBenchmark):
     """
     Benchmark with default configuration & relevant functions for CMA-ES
     """
@@ -58,7 +58,7 @@ class CMAESPopSizeBenchmark(AbstractBenchmark):
         config_path : str
             Path to config file (optional)
         """
-        super(CMAESPopSizeBenchmark, self).__init__(config_path, config)
+        super(CMAESArtificialPopSizeBenchmark, self).__init__(config_path, config)
         if not self.config:
             self.config = objdict(CMAES_DEFAULTS.copy())
 

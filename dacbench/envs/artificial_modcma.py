@@ -1,11 +1,13 @@
 
 import resource
 import sys
+import threading
 import warnings
+from collections import deque
 
 import numpy as np
 import ioh
-from modcma import ModularCMAES
+from modcma import ModularCMAES, Parameters
 
 from dacbench import AbstractEnv
 
@@ -15,7 +17,7 @@ sys.setrecursionlimit(10**9)
 warnings.filterwarnings("ignore")
 
 
-class CMAESPopSizeEnv(AbstractEnv):
+class CMAESArtificialPopSizeEnv(AbstractEnv):
     """
     Environment to control the step size of CMA-ES
     """
@@ -29,7 +31,7 @@ class CMAESPopSizeEnv(AbstractEnv):
         config : objdict
             Environment configuration
         """
-        super(CMAESPopSizeEnv, self).__init__(config)
+        super(CMAESArtificialPopSizeEnv, self).__init__(config)
         self.es = None
         self.budget = config.budget
 
@@ -56,15 +58,15 @@ class CMAESPopSizeEnv(AbstractEnv):
         
         self.previous_obj_best = self.current_obj_best
         
-        truncated = super(CMAESPopSizeEnv, self).step_()
+        truncated = super(CMAESArtificialPopSizeEnv, self).step_()
         terminated = not self.es.step()
         
-        if not (terminated or truncated):
-            """Moves forward in time one step"""
-            self.es.parameters.update_popsize(round(min(max(action[0], 4), 512)))
+        # if not (terminated or truncated):
+        #     """Moves forward in time one step"""
+        #     self.es.parameters.update_popsize(round(min(max(action[0], 4), 512)))
     
         self.current_obj_best = self.es.parameters.fopt
-
+    
         return self.get_state(self), self.get_reward(self), terminated, truncated, {}
 
     def reset(self, seed=None, options={}):
@@ -78,7 +80,7 @@ class CMAESPopSizeEnv(AbstractEnv):
         """
         
         
-        super(CMAESPopSizeEnv, self).reset_(seed)
+        super(CMAESArtificialPopSizeEnv, self).reset_(seed)
         
         self.dim = self.instance[1]
         #self.fid = self.instance[0]
@@ -101,7 +103,7 @@ class CMAESPopSizeEnv(AbstractEnv):
             self.objective,
             self.dim,
             budget = self.budget,
-            pop_size_adaptation=None,
+            pop_size_adaptation='psa',
         )
         
         return self.get_state(self), {}
@@ -144,7 +146,9 @@ class CMAESPopSizeEnv(AbstractEnv):
         """
 
         dy = self.previous_obj_best - self.current_obj_best
+        #return min(1e9, max(dy, 0))
 
+        print(self.current_obj_best)
         return dy
 
 
@@ -155,13 +159,14 @@ class CMAESPopSizeEnv(AbstractEnv):
 
         lam = self.es.parameters.lambda_
         pt = self.es.parameters.pnorm
-        #scale_factor = self.es.parameters.expected_update_snorm()
+        scale_factor = self.es.parameters.expected_update_snorm()
+        remaining_budget = self.budget - self.es.parameters.used_budget
         
         state = [
             lam,
             pt,
-            #scale_factor,
-            self.current_obj_best
+            scale_factor,
+            remaining_budget
         ]
         
         return state
