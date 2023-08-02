@@ -20,8 +20,7 @@ INFO = {
     "state_description": [
         "lambda_",
         "ptnorm",
-        "normalisation_factor",
-        "remaining_budget"
+        "normalisation_factor"
     ],
 }
 
@@ -39,7 +38,7 @@ CMAES_DEFAULTS = objdict(
         "instance_set_path": "../instance_sets/cma/cma_train.csv",
         "test_set_path": "../instance_sets/cma/cma_test.csv",
         "benchmark_info": INFO,
-        "budget": int(5e5)
+        "budget": int(1e5)
     }
 )
 
@@ -66,7 +65,7 @@ class CMAESPopSizeBenchmark(AbstractBenchmark):
             if key not in self.config:
                 self.config[key] = CMAES_DEFAULTS[key]
                 
-
+ 
     def get_environment(self):
         """
         Return CMAESEnv env with current configuration

@@ -2,6 +2,7 @@
 import resource
 import sys
 import warnings
+import os
 
 import numpy as np
 import ioh
@@ -35,9 +36,6 @@ class CMAESPopSizeEnv(AbstractEnv):
 
         self.get_reward = self.get_default_reward
         self.get_state = self.get_default_state
-        
-        self.previous_obj_best = 0
-        self.current_obj_best = 0
 
     def step(self, action):
         """
@@ -76,7 +74,8 @@ class CMAESPopSizeEnv(AbstractEnv):
         np.array
             Environment state
         """
-        
+        self.previous_obj_best = 0
+        self.current_obj_best = 0
         
         super(CMAESPopSizeEnv, self).reset_(seed)
         
@@ -96,6 +95,7 @@ class CMAESPopSizeEnv(AbstractEnv):
             instance=1,
             problem_class=ioh.ProblemClass.BBOB
         )
+        
         
         self.es = ModularCMAES(
             self.objective,
