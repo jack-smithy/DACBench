@@ -14,6 +14,8 @@ from dacbench.logger import Logger, load_logs, log2dataframe
 
 from dacbench.benchmarks import CMAESPopSizeBenchmark
 
+print("updated")
+
 bench = CMAESPopSizeBenchmark()
 env = bench.get_environment()
 env = Monitor(env, "./logs/")
