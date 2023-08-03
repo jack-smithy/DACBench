@@ -27,14 +27,14 @@ def plot_results(log_folder, title="Learning Curve"):
     :param log_folder: (str) the save location of the results to plot
     :param title: (str) the title of the task to plot
     """
-    x, y = ts2xy(load_results(log_folder), "timesteps")
-    #y = moving_average(y, window=50)
+    x, y = ts2xy(load_results(log_folder), "episodes")
+    y = moving_average(y, window=5)
     # Truncate x
     x = x[len(x) - len(y) :]
 
     fig = plt.figure(title)
     plt.plot(x, y)
-    plt.xlabel("Number of Timesteps")
+    plt.xlabel("Number of Episodes")
     plt.ylabel("Rewards")
     plt.title(title + " Smoothed")
     #plt.show()
@@ -46,9 +46,4 @@ def read_file(dir):
     return np.load(f'{dir}/evaluations.npz')
 
 if __name__=="__main__":
-    data = read_file(log_dir)
-    lst = data.files
-    
-    for item in lst:
-        print(item)
-        print(data[item])
+    plot_results(log_dir)

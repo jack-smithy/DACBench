@@ -12,6 +12,7 @@ from dacbench.envs import CMAESPopSizeEnv
 DEFAULT_CFG_SPACE = CS.ConfigurationSpace()
 POP_SIZE = CSH.UniformFloatHyperparameter(name="Pop_size", lower=4, upper=512)
 DEFAULT_CFG_SPACE.add_hyperparameter(POP_SIZE)
+STATE_SPACE_DIM = 5
 
 INFO = {
     "identifier": "CMA-ES",
@@ -31,14 +32,14 @@ CMAES_DEFAULTS = objdict(
         "config_space": DEFAULT_CFG_SPACE,
         "observation_space_class": "Box",
         "observation_space_type": np.float32,
-        "observation_space_args": [-1 * np.inf * np.ones(3), np.inf * np.ones(3)],
+        "observation_space_args": [-1 * np.inf * np.ones(STATE_SPACE_DIM), np.inf * np.ones(STATE_SPACE_DIM)],
         "reward_range": (0, (10**9)),
         "cutoff": 1e6,
         "seed": 0,
         "instance_set_path": "../instance_sets/cma/cma_train.csv",
         "test_set_path": "../instance_sets/cma/cma_test.csv",
         "benchmark_info": INFO,
-        "budget": int(1e5)
+        "budget": int(25000)
     }
 )
 
