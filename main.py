@@ -29,7 +29,7 @@ eval_callback = EvalCallback(env,
 
 agent = TD3("MlpPolicy",
             env, 
-            learning_rate=1e-4,
+            learning_rate=5e-5,
             action_noise=action_noise,
             verbose=1)
 
