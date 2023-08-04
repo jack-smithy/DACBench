@@ -143,16 +143,16 @@ class CMAESPopSizeEnv(AbstractEnv):
 
         lam = self.es.parameters.lambda_
         pt = self.es.parameters.pnorm
-        ps = np.linalg.norm(self.es.parameters.ps)
-        pc = np.linalg.norm(self.es.parameters.pc)
+        # ps = np.linalg.norm(self.es.parameters.ps)
+        # pc = np.linalg.norm(self.es.parameters.pc)
         scale_factor = self.es.parameters.expected_update_snorm()
 
         state = [
             lam,
             pt,
             scale_factor,
-            ps,
-            pc,
+            # ps,
+            # pc,
         ]
 
         return state

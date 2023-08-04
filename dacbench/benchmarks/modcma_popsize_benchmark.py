@@ -12,7 +12,7 @@ from dacbench.envs import CMAESPopSizeEnv
 DEFAULT_CFG_SPACE = CS.ConfigurationSpace()
 POP_SIZE = CSH.UniformFloatHyperparameter(name="Pop_size", lower=4, upper=512)
 DEFAULT_CFG_SPACE.add_hyperparameter(POP_SIZE)
-STATE_SPACE_DIM = 5
+STATE_SPACE_DIM = 3
 
 INFO = {
     "identifier": "CMA-ES",
