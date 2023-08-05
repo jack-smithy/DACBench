@@ -4,6 +4,7 @@ import warnings
 import os
 
 import numpy as np
+import matplotlib.pyplot as plt
 import ioh
 from modcma import ModularCMAES
 
@@ -35,6 +36,10 @@ class CMAESPopSizeEnv(AbstractEnv):
 
         self.get_reward = self.get_default_reward
         self.get_state = self.get_default_state
+        
+        self.hist = np.array([])
+        
+        self.current_precision = None
 
     def step(self, action):
         """
@@ -57,7 +62,7 @@ class CMAESPopSizeEnv(AbstractEnv):
         if not (terminated or truncated):
             """Moves forward in time one step"""
             self.es.parameters.update_popsize(round(min(max(action[0], 10), 512)))
-
+            
         return self.get_state(self), self.get_reward(self), terminated, truncated, {}
 
     def reset(self, seed=None, options={}):
@@ -69,12 +74,17 @@ class CMAESPopSizeEnv(AbstractEnv):
         np.array
             Environment state
         """
-
+        
+        if self.current_precision is not None:
+            print(self.current_precision)
+            self.hist = np.append(self.hist, self.current_precision)
+            np.save('history', self.hist)
+            
         self.current_precision = np.inf
 
         super(CMAESPopSizeEnv, self).reset_(seed)
 
-        self.fid = 3
+        self.fid = 1
         # self.fid = self.instance[0]
         self.dim = self.instance[1]
         self.sigma0 = self.instance[2]
@@ -104,7 +114,8 @@ class CMAESPopSizeEnv(AbstractEnv):
         bool
             Cleanup flag
         """
-
+        plt.plot(self.hist)
+        plt.savefig("./plots/precision.pdf", format="pdf")
         return True
 
     def render(self, mode: str = "human"):
@@ -131,10 +142,12 @@ class CMAESPopSizeEnv(AbstractEnv):
             Reward
 
         """
-
+        
         self.current_precision = self.objective.state.current_best.y - self.objective.optimum.y
+        
+        reward = -1 * np.log(self.current_precision)
 
-        return -1 * np.log(self.current_precision)
+        return min(reward, 10**12)
 
     def get_default_state(self, _):
         """

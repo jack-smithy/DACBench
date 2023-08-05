@@ -34,12 +34,12 @@ CMAES_DEFAULTS = objdict(
         "observation_space_type": np.float32,
         "observation_space_args": [-1 * np.inf * np.ones(STATE_SPACE_DIM), np.inf * np.ones(STATE_SPACE_DIM)],
         "reward_range": (0, (10**9)),
-        "cutoff": 1e6,
+        "cutoff": 1e9,
         "seed": 0,
         "instance_set_path": "../instance_sets/cma/cma_train.csv",
         "test_set_path": "../instance_sets/cma/cma_test.csv",
         "benchmark_info": INFO,
-        "budget": int(25000)
+        "budget": int(1e6)
     }
 )
 

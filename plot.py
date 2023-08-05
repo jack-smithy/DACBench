@@ -28,7 +28,7 @@ def plot_results(log_folder, title="Learning Curve"):
     :param title: (str) the title of the task to plot
     """
     x, y = ts2xy(load_results(log_folder), "timesteps")
-    y = moving_average(y, window=5)
+    #y = moving_average(y, window=5)
     # Truncate x
     x = x[len(x) - len(y) :]
 
@@ -40,10 +40,17 @@ def plot_results(log_folder, title="Learning Curve"):
     #plt.show()
     plt.savefig("./plots/learning_curve.pdf", format="pdf")
     
+def plot_history(file):
+    arr = np.load(file)
+    plt.plot(arr)
+    plt.yscale("log")
+    plt.savefig("./plots/history.pdf", format="pdf")
+    
 #plot_results(log_dir)
 
 def read_file(dir):
     return np.load(f'{dir}/evaluations.npz')
 
 if __name__=="__main__":
-    plot_results(log_dir)
+    #plot_results(log_dir)
+    plot_history('history.npy')
