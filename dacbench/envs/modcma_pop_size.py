@@ -39,6 +39,9 @@ class CMAESPopSizeEnv(AbstractEnv):
         
         self.hist = np.array([])
         
+        self.run_history = np.array([])
+        self.used_budget = np.array([])
+        
         self.current_precision = None
 
     def step(self, action):
@@ -63,7 +66,7 @@ class CMAESPopSizeEnv(AbstractEnv):
             """Moves forward in time one step"""
             self.es.parameters.update_popsize(round(min(max(action[0], 10), 512)))
             
-        return self.get_state(self), self.get_reward(self), terminated, truncated, {}
+        return self.get_state(self), self.get_reward(self), terminated, truncated, {'used_budget': self.es.parameters.used_budget}
 
     def reset(self, seed=None, options={}):
         """
@@ -79,6 +82,9 @@ class CMAESPopSizeEnv(AbstractEnv):
             print(self.current_precision)
             self.hist = np.append(self.hist, self.current_precision)
             np.save('history', self.hist)
+            
+        np.save("logs/fid1/prec", self.run_history)
+        np.save("logs/fid1/used_budget", self.used_budget)
             
         self.current_precision = np.inf
 
@@ -114,8 +120,6 @@ class CMAESPopSizeEnv(AbstractEnv):
         bool
             Cleanup flag
         """
-        plt.plot(self.hist)
-        plt.savefig("./plots/precision.pdf", format="pdf")
         return True
 
     def render(self, mode: str = "human"):
@@ -144,6 +148,9 @@ class CMAESPopSizeEnv(AbstractEnv):
         """
         
         self.current_precision = self.objective.state.current_best.y - self.objective.optimum.y
+        
+        self.run_history = np.append(self.run_history, self.current_precision)
+        self.used_budget = np.append(self.used_budget, self.es.parameters.used_budget)
         
         reward = -1 * np.log(self.current_precision)
 

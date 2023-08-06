@@ -46,11 +46,24 @@ def plot_history(file):
     plt.yscale("log")
     plt.savefig("./plots/history.pdf", format="pdf")
     
-#plot_results(log_dir)
+def plot_eval(log_dir):
+    prec_psa = np.load(f"{log_dir}/prec_psa.npy")
+    budget_psa = np.load(f"{log_dir}/used_budget_psa.npy")
+    
+    prec = np.load(f"{log_dir}/prec.npy")
+    budget = np.load(f"{log_dir}/used_budget.npy")
+    
+    plt.plot(budget, prec)
+    plt.plot(budget_psa, prec_psa)
+    plt.yscale("log")
+    plt.xscale("log")
+    plt.savefig("./plots/eval_psa.pdf", format="pdf")
 
 def read_file(dir):
     return np.load(f'{dir}/evaluations.npz')
 
 if __name__=="__main__":
     #plot_results(log_dir)
-    plot_history('history.npy')
+    #plot_history('history.npy')
+    
+    plot_eval("./logs/fid1")

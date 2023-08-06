@@ -18,7 +18,7 @@ n_actions = env.action_space.shape[-1]
 action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n_actions))
 
 eval_callback = EvalCallback(env,
-                             best_model_save_path="./logs/",
+                             best_model_save_path="./logs/fid1/",
                              log_path="./logs/", 
                              eval_freq=5,
                              n_eval_episodes=5,
@@ -28,10 +28,10 @@ eval_callback = EvalCallback(env,
 
 agent = TD3("MlpPolicy",
             env, 
-            learning_rate=1e-4,
+            learning_rate=5e-5,
             action_noise=action_noise,
             verbose=1)
 
 
-agent.learn(total_timesteps=500000, callback=eval_callback, progress_bar=True)
+agent.learn(total_timesteps=100000, callback=eval_callback, progress_bar=True)
 agent.save('./logs/test1')

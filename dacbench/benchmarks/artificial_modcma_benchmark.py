@@ -7,11 +7,12 @@ import numpy as np
 from gymnasium import spaces
 
 from dacbench.abstract_benchmark import AbstractBenchmark, objdict
-from dacbench.envs import CMAESPopSizeEnv
+from dacbench.envs import CMAESArtificialPopSizeEnv
 
 DEFAULT_CFG_SPACE = CS.ConfigurationSpace()
-POP_SIZE = CSH.UniformFloatHyperparameter(name="Pop_size", lower=4, upper=5120)
+POP_SIZE = CSH.UniformFloatHyperparameter(name="Pop_size", lower=4, upper=512)
 DEFAULT_CFG_SPACE.add_hyperparameter(POP_SIZE)
+STATE_SPACE_DIM = 3
 
 INFO = {
     "identifier": "CMA-ES",
@@ -20,26 +21,25 @@ INFO = {
     "state_description": [
         "lambda_",
         "ptnorm",
-        "normalisation_factor",
-        "remaining_budget"
+        "normalisation_factor"
     ],
 }
 
 CMAES_DEFAULTS = objdict(
     {
         "action_space_class": "Box",
-        "action_space_args": [np.array([0]), np.array([5120])],
+        "action_space_args": [np.array([0]), np.array([512])],
         "config_space": DEFAULT_CFG_SPACE,
         "observation_space_class": "Box",
         "observation_space_type": np.float32,
-        "observation_space_args": [-1 * np.inf * np.ones(4), np.inf * np.ones(4)],
+        "observation_space_args": [-1 * np.inf * np.ones(STATE_SPACE_DIM), np.inf * np.ones(STATE_SPACE_DIM)],
         "reward_range": (0, (10**9)),
-        "cutoff": 1e6,
+        "cutoff": 1e9,
         "seed": 0,
         "instance_set_path": "../instance_sets/cma/cma_train.csv",
         "test_set_path": "../instance_sets/cma/cma_test.csv",
         "benchmark_info": INFO,
-        "budget": int(1e5)
+        "budget": int(1e6)
     }
 )
 
@@ -66,7 +66,7 @@ class CMAESArtificialPopSizeBenchmark(AbstractBenchmark):
             if key not in self.config:
                 self.config[key] = CMAES_DEFAULTS[key]
                 
-
+ 
     def get_environment(self):
         """
         Return CMAESEnv env with current configuration
@@ -86,7 +86,7 @@ class CMAESArtificialPopSizeBenchmark(AbstractBenchmark):
         ):
             self.read_instance_set(test=True)
 
-        env = CMAESPopSizeEnv(self.config)
+        env = CMAESArtificialPopSizeEnv(self.config)
         
         for func in self.wrap_funcs:
             env = func(env)
@@ -145,4 +145,4 @@ class CMAESArtificialPopSizeBenchmark(AbstractBenchmark):
         self.config.seed = seed
         self.read_instance_set()
         self.read_instance_set(test=True)
-        return CMAESPopSizeEnv(self.config)
+        return CMAESArtificialPopSizeEnv(self.config)
