@@ -9,17 +9,11 @@ from stable_baselines3.common.monitor import Monitor
 
 from dacbench.benchmarks import CMAESPopSizeBenchmark, CMAESArtificialPopSizeBenchmark
 
-def test_agent():
+def test_agent(fid):
     bench = CMAESPopSizeBenchmark()
     env = bench.get_environment()
-    #env = Monitor(env, "./logs/baseline/")
     
-    # n_actions = env.action_space.shape[-1]
-    # action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n_actions))
-
-    # agent = TD3("MlpPolicy", env, learning_rate=1e-7, action_noise=action_noise, verbose=1)
-    
-    model = TD3.load("./logs/best_model", env=env)
+    model = TD3.load(f"./logs/fid{fid}/best_model", env=env)
     vec_env = model.get_env()
 
     obs = vec_env.reset()
@@ -32,21 +26,16 @@ def test_agent():
     while reps < 1:
         action, _states = model.predict(obs)
         obs, rewards, terminated, truncated = vec_env.step(action)
-        if rewards > tol:
-            vec_env.reset()
+        
+        if rewards > tol or terminated[0] or truncated[0]['TimeLimit.truncated']:
             reps += 1
+            vec_env.reset()
             
-def test_baseline():
+def test_baseline(fid):
     bench = CMAESArtificialPopSizeBenchmark()
     env = bench.get_environment()
-    #env = Monitor(env, "./logs/baseline/")
     
-    # n_actions = env.action_space.shape[-1]
-    # action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n_actions))
-
-    # agent = TD3("MlpPolicy", env, learning_rate=1e-7, action_noise=action_noise, verbose=1)
-    
-    model = TD3.load("./logs/best_model", env=env)
+    model = TD3.load(f"./logs/fid{fid}/best_model", env=env)
     vec_env = model.get_env()
 
     obs = vec_env.reset()
@@ -58,11 +47,13 @@ def test_baseline():
     while reps < 1:
         action, _states = model.predict(obs)
         obs, rewards, terminated, truncated = vec_env.step(action)
-        if rewards > tol:
-            vec_env.reset()
+                
+        if rewards > tol or terminated[0] or truncated[0]['TimeLimit.truncated']:
             reps += 1
-    
-        
+            vec_env.reset()
+
 if __name__=="__main__":
-    test_baseline()
-    test_agent()
+    fid = 2
+    
+    test_baseline(fid)
+    test_agent(fid)

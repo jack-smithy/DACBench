@@ -41,8 +41,11 @@ class CMAESPopSizeEnv(AbstractEnv):
         
         self.run_history = np.array([])
         self.used_budget = np.array([])
+        self.lambda_history = np.array([])
         
         self.current_precision = None
+        
+        self.fid = config.fid
 
     def step(self, action):
         """
@@ -83,14 +86,14 @@ class CMAESPopSizeEnv(AbstractEnv):
             self.hist = np.append(self.hist, self.current_precision)
             np.save('history', self.hist)
             
-        np.save("logs/fid1/prec", self.run_history)
-        np.save("logs/fid1/used_budget", self.used_budget)
+        np.save(f"logs/fid{self.fid}/prec", self.run_history)
+        np.save(f"logs/fid{self.fid}/used_budget", self.used_budget)
+        np.save(f"logs/fid{self.fid}/lambda", self.lambda_history)
             
         self.current_precision = np.inf
 
         super(CMAESPopSizeEnv, self).reset_(seed)
 
-        self.fid = 1
         # self.fid = self.instance[0]
         self.dim = self.instance[1]
         self.sigma0 = self.instance[2]
@@ -151,6 +154,7 @@ class CMAESPopSizeEnv(AbstractEnv):
         
         self.run_history = np.append(self.run_history, self.current_precision)
         self.used_budget = np.append(self.used_budget, self.es.parameters.used_budget)
+        self.lambda_history = np.append(self.lambda_history, self.es.parameters.lambda_)
         
         reward = -1 * np.log(self.current_precision)
 

@@ -39,7 +39,8 @@ CMAES_DEFAULTS = objdict(
         "instance_set_path": "../instance_sets/cma/cma_train.csv",
         "test_set_path": "../instance_sets/cma/cma_test.csv",
         "benchmark_info": INFO,
-        "budget": int(1e6)
+        "budget": int(5e5),
+        "fid": 2
     }
 )
 
@@ -65,7 +66,6 @@ class CMAESPopSizeBenchmark(AbstractBenchmark):
         for key in CMAES_DEFAULTS:
             if key not in self.config:
                 self.config[key] = CMAES_DEFAULTS[key]
-                
  
     def get_environment(self):
         """
