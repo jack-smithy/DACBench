@@ -10,7 +10,7 @@ from stable_baselines3.common.monitor import Monitor
 
 from dacbench.benchmarks import CMAESPopSizeBenchmark
 
-fid=3
+fid=2
 
 bench = CMAESPopSizeBenchmark()
 env = bench.get_benchmark()
