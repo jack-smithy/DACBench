@@ -10,10 +10,14 @@ from stable_baselines3.common.monitor import Monitor
 
 from dacbench.benchmarks import CMAESPopSizeBenchmark
 
-fid=2
 
 bench = CMAESPopSizeBenchmark()
 env = bench.get_benchmark()
+fid = bench.config.fid
+
+if bench.config.test:
+    print('testing mode - stop now')
+
 env = Monitor(env, f"./logs/fid{fid}/")
 
 n_actions = env.action_space.shape[-1]
@@ -21,7 +25,7 @@ action_noise = NormalActionNoise(mean=np.zeros(n_actions), sigma=0.1 * np.ones(n
 
 eval_callback = EvalCallback(env,
                              best_model_save_path=f"./logs/fid{fid}/",
-                             log_path="./logs/", 
+                             log_path=f"./logs/fid{fid}", 
                              eval_freq=100,
                              n_eval_episodes=5,
                              deterministic=True, 
@@ -36,4 +40,6 @@ agent = TD3("MlpPolicy",
 
 
 agent.learn(total_timesteps=100000, callback=eval_callback, progress_bar=True)
-agent.save(f'./logs/final_model_fid{fid}')
+agent.save(f'./logs/fid{fid}/final_model')
+env.close()
+

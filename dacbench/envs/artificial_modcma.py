@@ -32,20 +32,23 @@ class CMAESArtificialPopSizeEnv(AbstractEnv):
         """
         super(CMAESArtificialPopSizeEnv, self).__init__(config)
         self.es = None
+        
         self.budget = config.budget
+        self.fid = config.fid
+        self.test = config.test        
 
         self.get_reward = self.get_default_reward
         self.get_state = self.get_default_state
         
-        self.hist = np.array([])
+        if self.test:
+            self.run_history = np.array([])
+            self.used_budget = np.array([])
+            self.lambda_history = np.array([])
+            
+        else:
+            self.hist = np.array([])
         
-        self.run_history = np.array([])
-        self.lambda_history = np.array([])
-        self.used_budget = np.array([])
-        
-        self.current_precision = None
-        
-        self.fid = config.fid
+
 
     def step(self, action):
         """
@@ -64,8 +67,15 @@ class CMAESArtificialPopSizeEnv(AbstractEnv):
 
         truncated = super(CMAESArtificialPopSizeEnv, self).step_()
         terminated = not self.es.step()
-            
-        return self.get_state(self), self.get_reward(self), terminated, truncated, {'used_budget': self.es.parameters.used_budget}
+
+        if not (terminated or truncated):
+            pass
+        else:
+            self.hist = np.append(self.hist, self.current_precision)
+            print(self.current_precision)
+            np.save(f'./logs/fid{self.fid}/training_precision', self.hist)
+                
+        return self.get_state(self), self.get_reward(self), terminated, truncated, {}
 
     def reset(self, seed=None, options={}):
         """
@@ -76,20 +86,16 @@ class CMAESArtificialPopSizeEnv(AbstractEnv):
         np.array
             Environment state
         """
-        
-        if self.current_precision is not None:
-            print(self.current_precision)
-            self.hist = np.append(self.hist, self.current_precision)
-            np.save('history_psa', self.hist)
+           
+        if self.test:
+            np.save(f"logs/fid{self.fid}/prec_psa", self.run_history)
+            np.save(f"logs/fid{self.fid}/used_budget_psa", self.used_budget)
+            np.save(f"logs/fid{self.fid}/lambda_psa", self.lambda_history)
             
-        np.save(f"logs/fid{self.fid}/prec_psa", self.run_history)
-        np.save(f"logs/fid{self.fid}/used_budget_psa", self.used_budget)
-        np.save(f"logs/fid{self.fid}/lambda_psa", self.lambda_history)
-
         self.current_precision = np.inf
 
         super(CMAESArtificialPopSizeEnv, self).reset_(seed)
-        
+
         # self.fid = self.instance[0]
         self.dim = self.instance[1]
         self.sigma0 = self.instance[2]
@@ -106,8 +112,8 @@ class CMAESArtificialPopSizeEnv(AbstractEnv):
             self.dim,
             budget=self.budget,
             pop_size_adaptation='psa',
-            min_lambda_=10,
-            max_lambda_=512
+            max_lambda_=512,
+            min_lambda_=10
         )
 
         return self.get_state(self), {}
@@ -121,6 +127,9 @@ class CMAESArtificialPopSizeEnv(AbstractEnv):
         bool
             Cleanup flag
         """
+        
+        print('closed')
+        
         return True
 
     def render(self, mode: str = "human"):
@@ -150,9 +159,10 @@ class CMAESArtificialPopSizeEnv(AbstractEnv):
         
         self.current_precision = self.objective.state.current_best.y - self.objective.optimum.y
         
-        self.run_history = np.append(self.run_history, self.current_precision)
-        self.used_budget = np.append(self.used_budget, self.es.parameters.used_budget)
-        self.lambda_history = np.append(self.lambda_history, self.es.parameters.lambda_)
+        if self.test:
+            self.run_history = np.append(self.run_history, self.current_precision)
+            self.used_budget = np.append(self.used_budget, self.es.parameters.used_budget)
+            self.lambda_history = np.append(self.lambda_history, self.es.parameters.lambda_)
         
         reward = -1 * np.log(self.current_precision)
 

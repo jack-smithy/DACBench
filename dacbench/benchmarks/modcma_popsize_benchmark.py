@@ -28,7 +28,7 @@ INFO = {
 CMAES_DEFAULTS = objdict(
     {
         "action_space_class": "Box",
-        "action_space_args": [np.array([0]), np.array([512])],
+        "action_space_args": [np.array([10]), np.array([512])],
         "config_space": DEFAULT_CFG_SPACE,
         "observation_space_class": "Box",
         "observation_space_type": np.float32,
@@ -39,8 +39,9 @@ CMAES_DEFAULTS = objdict(
         "instance_set_path": "../instance_sets/cma/cma_train.csv",
         "test_set_path": "../instance_sets/cma/cma_test.csv",
         "benchmark_info": INFO,
-        "budget": int(5e5),
-        "fid": 2
+        "budget": int(1e5),
+        "fid": 1,
+        "test": False
     }
 )
 

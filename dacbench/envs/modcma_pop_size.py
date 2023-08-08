@@ -32,20 +32,23 @@ class CMAESPopSizeEnv(AbstractEnv):
         """
         super(CMAESPopSizeEnv, self).__init__(config)
         self.es = None
+        
         self.budget = config.budget
+        self.fid = config.fid
+        self.test = config.test        
 
         self.get_reward = self.get_default_reward
         self.get_state = self.get_default_state
         
-        self.hist = np.array([])
+        if self.test:
+            self.run_history = np.array([])
+            self.used_budget = np.array([])
+            self.lambda_history = np.array([])
+            
+        else:
+            self.hist = np.array([])
         
-        self.run_history = np.array([])
-        self.used_budget = np.array([])
-        self.lambda_history = np.array([])
-        
-        self.current_precision = None
-        
-        self.fid = config.fid
+
 
     def step(self, action):
         """
@@ -68,8 +71,12 @@ class CMAESPopSizeEnv(AbstractEnv):
         if not (terminated or truncated):
             """Moves forward in time one step"""
             self.es.parameters.update_popsize(round(min(max(action[0], 10), 512)))
-            
-        return self.get_state(self), self.get_reward(self), terminated, truncated, {'used_budget': self.es.parameters.used_budget}
+        else:
+            self.hist = np.append(self.hist, self.current_precision)
+            print(self.current_precision)
+            np.save(f'./logs/fid{self.fid}/training_precision', self.hist)
+                
+        return self.get_state(self), self.get_reward(self), terminated, truncated, {}
 
     def reset(self, seed=None, options={}):
         """
@@ -80,15 +87,11 @@ class CMAESPopSizeEnv(AbstractEnv):
         np.array
             Environment state
         """
-        
-        if self.current_precision is not None:
-            print(self.current_precision)
-            self.hist = np.append(self.hist, self.current_precision)
-            np.save('history', self.hist)
-            
-        np.save(f"logs/fid{self.fid}/prec", self.run_history)
-        np.save(f"logs/fid{self.fid}/used_budget", self.used_budget)
-        np.save(f"logs/fid{self.fid}/lambda", self.lambda_history)
+           
+        if self.test:
+            np.save(f"logs/fid{self.fid}/prec", self.run_history)
+            np.save(f"logs/fid{self.fid}/used_budget", self.used_budget)
+            np.save(f"logs/fid{self.fid}/lambda", self.lambda_history)
             
         self.current_precision = np.inf
 
@@ -123,6 +126,9 @@ class CMAESPopSizeEnv(AbstractEnv):
         bool
             Cleanup flag
         """
+        
+        print('closed')
+        
         return True
 
     def render(self, mode: str = "human"):
@@ -152,9 +158,10 @@ class CMAESPopSizeEnv(AbstractEnv):
         
         self.current_precision = self.objective.state.current_best.y - self.objective.optimum.y
         
-        self.run_history = np.append(self.run_history, self.current_precision)
-        self.used_budget = np.append(self.used_budget, self.es.parameters.used_budget)
-        self.lambda_history = np.append(self.lambda_history, self.es.parameters.lambda_)
+        if self.test:
+            self.run_history = np.append(self.run_history, self.current_precision)
+            self.used_budget = np.append(self.used_budget, self.es.parameters.used_budget)
+            self.lambda_history = np.append(self.lambda_history, self.es.parameters.lambda_)
         
         reward = -1 * np.log(self.current_precision)
 

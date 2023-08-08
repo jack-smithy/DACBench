@@ -9,9 +9,14 @@ from stable_baselines3.common.monitor import Monitor
 
 from dacbench.benchmarks import CMAESPopSizeBenchmark, CMAESArtificialPopSizeBenchmark
 
-def test_agent(fid):
+def test_agent():
     bench = CMAESPopSizeBenchmark()
     env = bench.get_environment()
+    
+    fid = bench.config.fid
+    
+    if not bench.config.test:
+        print('Not test mode')
     
     model = TD3.load(f"./logs/fid{fid}/best_model", env=env)
     vec_env = model.get_env()
@@ -31,9 +36,14 @@ def test_agent(fid):
             reps += 1
             vec_env.reset()
             
-def test_baseline(fid):
+def test_baseline():
     bench = CMAESArtificialPopSizeBenchmark()
     env = bench.get_environment()
+    
+    fid = bench.config.fid
+    
+    if not bench.config.test:
+        print('Not test mode')
     
     model = TD3.load(f"./logs/fid{fid}/best_model", env=env)
     vec_env = model.get_env()
@@ -53,7 +63,7 @@ def test_baseline(fid):
             vec_env.reset()
 
 if __name__=="__main__":
-    fid = 2
+
     
-    test_baseline(fid)
-    test_agent(fid)
+    test_baseline()
+    test_agent()
