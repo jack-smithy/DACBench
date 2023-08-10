@@ -41,7 +41,7 @@ CMAES_DEFAULTS = objdict(
         "benchmark_info": INFO,
         "budget": int(1e5),
         "fid": 1,
-        "test": False
+        "test": True
     }
 )
 

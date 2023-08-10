@@ -71,9 +71,10 @@ class CMAESArtificialPopSizeEnv(AbstractEnv):
         if not (terminated or truncated):
             pass
         else:
-            self.hist = np.append(self.hist, self.current_precision)
-            print(self.current_precision)
-            np.save(f'./logs/fid{self.fid}/training_precision', self.hist)
+            if not self.test:
+                self.hist = np.append(self.hist, self.current_precision)
+                print(self.current_precision)
+                np.save(f'./logs/fid{self.fid}/training_precision', self.hist)
                 
         return self.get_state(self), self.get_reward(self), terminated, truncated, {}
 
@@ -86,15 +87,15 @@ class CMAESArtificialPopSizeEnv(AbstractEnv):
         np.array
             Environment state
         """
-           
-        if self.test:
-            np.save(f"logs/fid{self.fid}/prec_psa", self.run_history)
-            np.save(f"logs/fid{self.fid}/used_budget_psa", self.used_budget)
-            np.save(f"logs/fid{self.fid}/lambda_psa", self.lambda_history)
             
         self.current_precision = np.inf
 
         super(CMAESArtificialPopSizeEnv, self).reset_(seed)
+        
+        if self.test:
+            np.save(f"logs/fid{self.fid}/prec_psa", self.run_history)
+            np.save(f"logs/fid{self.fid}/used_budget_psa", self.used_budget)
+            np.save(f"logs/fid{self.fid}/lambda_psa", self.lambda_history)
 
         # self.fid = self.instance[0]
         self.dim = self.instance[1]
@@ -160,6 +161,8 @@ class CMAESArtificialPopSizeEnv(AbstractEnv):
         self.current_precision = self.objective.state.current_best.y - self.objective.optimum.y
         
         if self.test:
+            print(self.current_precision)
+            print(self.es.parameters.used_budget)
             self.run_history = np.append(self.run_history, self.current_precision)
             self.used_budget = np.append(self.used_budget, self.es.parameters.used_budget)
             self.lambda_history = np.append(self.lambda_history, self.es.parameters.lambda_)

@@ -72,9 +72,10 @@ class CMAESPopSizeEnv(AbstractEnv):
             """Moves forward in time one step"""
             self.es.parameters.update_popsize(round(min(max(action[0], 10), 512)))
         else:
-            self.hist = np.append(self.hist, self.current_precision)
-            print(self.current_precision)
-            np.save(f'./logs/fid{self.fid}/training_precision', self.hist)
+            if not self.test:
+                self.hist = np.append(self.hist, self.current_precision)
+                print(self.current_precision)
+                np.save(f'./logs/fid{self.fid}/training_precision', self.hist)
                 
         return self.get_state(self), self.get_reward(self), terminated, truncated, {}
 
@@ -87,12 +88,12 @@ class CMAESPopSizeEnv(AbstractEnv):
         np.array
             Environment state
         """
-           
+        
         if self.test:
             np.save(f"logs/fid{self.fid}/prec", self.run_history)
             np.save(f"logs/fid{self.fid}/used_budget", self.used_budget)
             np.save(f"logs/fid{self.fid}/lambda", self.lambda_history)
-            
+                       
         self.current_precision = np.inf
 
         super(CMAESPopSizeEnv, self).reset_(seed)
@@ -159,6 +160,7 @@ class CMAESPopSizeEnv(AbstractEnv):
         self.current_precision = self.objective.state.current_best.y - self.objective.optimum.y
         
         if self.test:
+            print(self.current_precision)
             self.run_history = np.append(self.run_history, self.current_precision)
             self.used_budget = np.append(self.used_budget, self.es.parameters.used_budget)
             self.lambda_history = np.append(self.lambda_history, self.es.parameters.lambda_)

@@ -39,7 +39,7 @@ CMAES_DEFAULTS = objdict(
         "instance_set_path": "../instance_sets/cma/cma_train.csv",
         "test_set_path": "../instance_sets/cma/cma_test.csv",
         "benchmark_info": INFO,
-        "budget": int(5e4),
+        "budget": int(1e5),
         "fid": 1,
         "test": True
     }

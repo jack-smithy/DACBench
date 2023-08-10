@@ -9,6 +9,8 @@ from stable_baselines3.common.monitor import Monitor
 
 from dacbench.benchmarks import CMAESPopSizeBenchmark, CMAESArtificialPopSizeBenchmark
 
+np.random.seed()
+
 def test_agent():
     bench = CMAESPopSizeBenchmark()
     env = bench.get_environment()
@@ -21,18 +23,19 @@ def test_agent():
     model = TD3.load(f"./logs/fid{fid}/best_model", env=env)
     vec_env = model.get_env()
 
-    obs = vec_env.reset()
     
     tol = 100
     
     #terminated, truncated = False, False
 
     reps = 0
+    
+    obs = vec_env.reset()
     while reps < 1:
         action, _states = model.predict(obs)
         obs, rewards, terminated, truncated = vec_env.step(action)
         
-        if rewards > tol or terminated[0] or truncated[0]['TimeLimit.truncated']:
+        if terminated[0]:
             reps += 1
             vec_env.reset()
             
@@ -52,18 +55,16 @@ def test_baseline():
     
     tol = 100
     
-
     reps = 0
     while reps < 1:
         action, _states = model.predict(obs)
         obs, rewards, terminated, truncated = vec_env.step(action)
                 
-        if rewards > tol or terminated[0] or truncated[0]['TimeLimit.truncated']:
+        if terminated[0]:
             reps += 1
             vec_env.reset()
 
 if __name__=="__main__":
 
-    
     test_baseline()
     test_agent()
