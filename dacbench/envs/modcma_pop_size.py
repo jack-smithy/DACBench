@@ -18,7 +18,7 @@ warnings.filterwarnings("ignore")
 
 class CMAESPopSizeEnv(AbstractEnv):
     """
-    Environment to control the step size of CMA-ES
+    Environment to control the population size of CMA-ES 
     """
 
     def __init__(self, config):
@@ -47,8 +47,6 @@ class CMAESPopSizeEnv(AbstractEnv):
             
         else:
             self.hist = np.array([])
-        
-
 
     def step(self, action):
         """
@@ -160,7 +158,6 @@ class CMAESPopSizeEnv(AbstractEnv):
         self.current_precision = self.objective.state.current_best.y - self.objective.optimum.y
         
         if self.test:
-            print(self.current_precision)
             self.run_history = np.append(self.run_history, self.current_precision)
             self.used_budget = np.append(self.used_budget, self.es.parameters.used_budget)
             self.lambda_history = np.append(self.lambda_history, self.es.parameters.lambda_)
@@ -176,16 +173,12 @@ class CMAESPopSizeEnv(AbstractEnv):
 
         lam = self.es.parameters.lambda_
         pt = self.es.parameters.pnorm
-        # ps = np.linalg.norm(self.es.parameters.ps)
-        # pc = np.linalg.norm(self.es.parameters.pc)
         scale_factor = self.es.parameters.expected_update_snorm()
 
         state = [
             lam,
             pt,
             scale_factor,
-            # ps,
-            # pc,
         ]
 
         return state

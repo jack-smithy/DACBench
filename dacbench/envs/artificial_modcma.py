@@ -18,7 +18,7 @@ warnings.filterwarnings("ignore")
 
 class CMAESArtificialPopSizeEnv(AbstractEnv):
     """
-    Environment to control the step size of CMA-ES
+    Environment to record the population size in PSA-CMA-ES
     """
 
     def __init__(self, config):
@@ -50,14 +50,9 @@ class CMAESArtificialPopSizeEnv(AbstractEnv):
         
 
 
-    def step(self, action):
+    def step(self, _):
         """
         Execute environment step
-
-        Parameters
-        ----------
-        action : list
-            action to execute
 
         Returns
         -------
@@ -87,6 +82,8 @@ class CMAESArtificialPopSizeEnv(AbstractEnv):
         np.array
             Environment state
         """
+        
+        np.random.seed(seed)
             
         self.current_precision = np.inf
 
@@ -161,8 +158,6 @@ class CMAESArtificialPopSizeEnv(AbstractEnv):
         self.current_precision = self.objective.state.current_best.y - self.objective.optimum.y
         
         if self.test:
-            print(self.current_precision)
-            print(self.es.parameters.used_budget)
             self.run_history = np.append(self.run_history, self.current_precision)
             self.used_budget = np.append(self.used_budget, self.es.parameters.used_budget)
             self.lambda_history = np.append(self.lambda_history, self.es.parameters.lambda_)

@@ -10,6 +10,7 @@ from stable_baselines3.common.monitor import Monitor
 
 from dacbench.benchmarks import CMAESPopSizeBenchmark
 
+"""Script to train the RL agent. Adjust relevant parameters in modcma_popsize_benchmark"""
 
 bench = CMAESPopSizeBenchmark()
 env = bench.get_benchmark()
@@ -34,8 +35,9 @@ eval_callback = EvalCallback(env,
 
 agent = TD3("MlpPolicy",
             env, 
-            learning_rate=5e-5,
+            learning_rate=1e-5,
             action_noise=action_noise,
+            learning_starts=10,
             verbose=1)
 
 

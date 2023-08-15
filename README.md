@@ -59,6 +59,25 @@ cd dacbench/container/singularity_recipes
 sudo singularity build cma cma.def
 ```
 
+## Additions for Master's project
+Population size adaptation environment and benchmark
+`modcma_pop_size.py`
+`modcma_popsize_benchmark.py`
+
+Dummy environment and benchmark to control population size with PSA-CMA-ES (Kouhei Nishida and Youhei Akimoto. 2018. PSA-CMA-ES: CMA-ES with population size adaptation.)
+`artificial_modcma.py`
+`artificial_modcma_benchmark.py`
+
+Script to train RL agent
+`main.py`
+
+Script to evaluate RL policy against PSA-CMA-ES
+`test.py`
+
+Plotting functionality
+`plot.py`
+
+
 ## Citing DACBench
 If you use DACBench in your research or application, please cite us:
 

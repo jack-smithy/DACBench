@@ -39,8 +39,8 @@ CMAES_DEFAULTS = objdict(
         "instance_set_path": "../instance_sets/cma/cma_train.csv",
         "test_set_path": "../instance_sets/cma/cma_test.csv",
         "benchmark_info": INFO,
-        "budget": int(1e5),
-        "fid": 1,
+        "budget": int(2.5e4),
+        "fid": 5,
         "test": True
     }
 )
@@ -48,7 +48,7 @@ CMAES_DEFAULTS = objdict(
 
 class CMAESPopSizeBenchmark(AbstractBenchmark):
     """
-    Benchmark with default configuration & relevant functions for CMA-ES
+    Benchmark with default configuration & relevant functions for CMA-ES RL method
     """
 
     def __init__(self, config_path=None, config=None):
